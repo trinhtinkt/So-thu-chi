@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sổ thu chi</title>
+<style>
+:root{--bg:#F6FAE8;--g:linear-gradient(160deg,#FBFDF1,#E4F0BC 55%,#F8FBEA);--card:rgba(255,255,255,.5);--soft:#E6F1BF;--line:#DCE8B0;--ink:#2F3B12;--mute:#76874A;--accent:#A9C94F;--accent-ink:#2F3B12;--in:#5E8A12;--out:#B4533F;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1B2108;--g:linear-gradient(160deg,#1E250A,#2B3812 55%,#181D07);--card:rgba(37,45,15,.5);--soft:#33401A;--line:#3F4D1F;--ink:#EEF5D2;--mute:#A3B56B;--accent:#B7D45A;--accent-ink:#1B2108;--in:#B7D45A;--out:#EE9A87;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1B2108;--g:linear-gradient(160deg,#1E250A,#2B3812 55%,#181D07);--card:rgba(37,45,15,.5);--soft:#33401A;--line:#3F4D1F;--ink:#EEF5D2;--mute:#A3B56B;--accent:#B7D45A;--accent-ink:#1B2108;--in:#B7D45A;--out:#EE9A87;color-scheme:dark}
+*{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;display:flex;flex-direction:column;background:var(--g) fixed;color:var(--ink);font:16px/1.4 "Be Vietnam Pro","Segoe UI",Roboto,system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+main{flex:1;overflow-y:auto;padding:12px 12px 16px;max-width:560px;width:100%;margin:0 auto}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.date{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.date input{flex:1;min-width:0;height:48px;border:2px solid var(--line);background:var(--card);border-radius:14px;padding:0 12px;font-weight:600;text-align:center}
+.nav{width:48px;height:48px;border:0;border-radius:14px;background:var(--soft);font-size:22px;font-weight:700}
+.periods{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.p{display:grid;grid-template-columns:64px 1fr 1fr;align-items:center;gap:6px;width:100%;text-align:left;border:2px solid var(--line);background:var(--card);border-radius:14px;padding:9px 12px}
+.p b{font-size:17px}
+.p small{display:block;color:var(--mute);font-size:12px;grid-column:2/4;order:3}
+.p span{font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
+.p .i{color:var(--in)}.p .o{color:var(--out)}
+.p[aria-pressed="true"]{background:var(--soft);border-color:var(--accent)}
+.form{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:12px;margin-bottom:12px}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.seg button{height:46px;border:2px solid var(--line);background:var(--bg);border-radius:12px;font-weight:700}
+.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.f{width:100%;height:50px;border:2px solid var(--line);background:var(--bg);border-radius:12px;padding:0 12px;margin-bottom:8px}
+.chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:8px;padding-bottom:2px}
+.chips button{flex:none;border:0;background:var(--soft);border-radius:99px;padding:6px 12px;font-size:14px}
+.row{display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:end}
+.lbl{display:block;font-size:12px;color:var(--mute);margin:0 0 3px 2px}
+.row .f{margin:0;text-align:center;font-weight:700;font-size:18px}
+.x{align-self:end;height:50px;display:flex;align-items:center;font-weight:700;color:var(--mute)}
+.qty{display:flex;gap:4px}
+.qty .f{min-width:0}
+.qty button{width:40px;height:50px;border:0;border-radius:12px;background:var(--soft);font-size:20px;font-weight:700;flex:none}
+.calc{margin:10px 2px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;min-height:24px}
+.add{width:100%;height:52px;border:0;border-radius:14px;background:var(--accent);color:var(--accent-ink);font-weight:800;font-size:17px}
+.item{display:flex;align-items:center;gap:10px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:9px 6px 9px 12px;margin-bottom:6px}
+.item .t{flex:1;min-width:0}
+.item .t b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .t small{color:var(--mute);font-size:12px}
+.item .v{font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+.item .del{width:38px;height:38px;border:0;background:none;color:var(--mute);font-size:20px;border-radius:10px}
+.empty{text-align:center;color:var(--mute);padding:18px 0}
+.total{display:grid;grid-template-columns:1fr 1fr;background:var(--card);border-top:3px solid var(--accent)}
+.total div{padding:10px 8px 12px;text-align:center}
+.total div+div{border-left:2px solid var(--line)}
+.total small{display:block;color:var(--mute);font-size:13px}
+.total strong{display:block;font-size:24px;font-variant-numeric:tabular-nums;line-height:1.2}
+.total em{display:block;font-style:normal;font-size:12px;color:var(--mute)}
+#ti strong{color:var(--in)}#to strong{color:var(--out)}
+:root{--b1:#FFFFFF;--b2:#E3EFB8;--edge:#B3CA70;--a1:#D3E884;--a2:#A9C94F;--aedge:#7A962B;--fld:rgba(255,255,255,.45);--sh:rgba(60,80,10,.22)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--b1:#47572A;--b2:#2F3B16;--edge:#121705;--a1:#C6E066;--a2:#9CBD3E;--aedge:#566F17;--fld:rgba(0,0,0,.25);--sh:rgba(0,0,0,.45)}}
+:root[data-theme="dark"]{--b1:#47572A;--b2:#2F3B16;--edge:#121705;--a1:#C6E066;--a2:#9CBD3E;--aedge:#566F17;--fld:rgba(0,0,0,.25);--sh:rgba(0,0,0,.45)}
+.form,.p,.item,.total,.date input,.f{-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.f,.date input{background:var(--fld)}
+.form,.item,.total{background:var(--card)}
+.periods{gap:11px}.seg{gap:12px}.chips{padding-bottom:9px}.qty{gap:7px}
+.p,.seg button,.chips button,.nav,.qty button,.add{border:0;background:linear-gradient(180deg,var(--b1),var(--b2));box-shadow:0 5px 0 var(--edge),0 9px 14px var(--sh),inset 0 2px 0 rgba(255,255,255,.55);transform:translateY(0);transition:transform .08s,box-shadow .08s}
+.p:active,.seg button:active,.chips button:active,.nav:active,.qty button:active,.add:active{transform:translateY(4px);box-shadow:0 1px 0 var(--edge),0 2px 4px var(--sh),inset 0 2px 0 rgba(255,255,255,.4)}
+.p[aria-pressed="true"],.seg button[aria-pressed="true"],.add{background:linear-gradient(180deg,var(--a1),var(--a2));box-shadow:0 5px 0 var(--aedge),0 9px 14px var(--sh),inset 0 2px 0 rgba(255,255,255,.5);color:var(--accent-ink)}
+.p[aria-pressed="true"],.seg button[aria-pressed="true"]{transform:translateY(3px);box-shadow:0 2px 0 var(--aedge),0 3px 6px var(--sh),inset 0 3px 6px rgba(60,80,10,.25)}
+.p[aria-pressed="true"] .i,.p[aria-pressed="true"] .o{color:var(--accent-ink)}
+.add:active{box-shadow:0 1px 0 var(--aedge),0 2px 4px var(--sh)}
+.chips button,.p,.seg button{border-radius:14px}.chips button{border-radius:99px}
+:root{--card:rgba(255,255,255,.28);--bl1:rgba(190,222,90,.55);--bl2:rgba(120,190,120,.35);--gl:rgba(255,255,255,.7)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--card:rgba(255,255,255,.07);--bl1:rgba(150,190,50,.35);--bl2:rgba(60,140,90,.3);--gl:rgba(255,255,255,.22)}}
+:root[data-theme="dark"]{--card:rgba(255,255,255,.07);--bl1:rgba(150,190,50,.35);--bl2:rgba(60,140,90,.3);--gl:rgba(255,255,255,.22)}
+body{background:radial-gradient(circle at 12% 8%,var(--bl1),transparent 45%),radial-gradient(circle at 92% 55%,var(--bl2),transparent 50%),var(--g);background-attachment:fixed}
+.form,.item,.total{background:var(--card);border:1.5px solid var(--gl);-webkit-backdrop-filter:blur(22px) saturate(1.4);backdrop-filter:blur(22px) saturate(1.4);box-shadow:0 8px 24px var(--sh),inset 0 1px 0 var(--gl)}
+.total{border-width:0;border-top:3px solid var(--accent);border-radius:20px 20px 0 0}
+.f,.date input{background:var(--fld);border:1.5px solid var(--gl)}
+.periods{gap:14px}.seg{gap:14px}.chips{padding-bottom:12px}.qty{gap:8px}
+.p,.seg button,.chips button,.nav,.qty button,.add{background:linear-gradient(180deg,var(--b1) 0%,var(--b2) 100%);box-shadow:0 8px 0 var(--edge),0 14px 18px var(--sh),inset 0 3px 0 var(--gl),inset 0 -3px 6px rgba(0,0,0,.06)}
+.p:active,.seg button:active,.chips button:active,.nav:active,.qty button:active,.add:active{transform:translateY(6px);box-shadow:0 2px 0 var(--edge),0 3px 6px var(--sh),inset 0 3px 0 var(--gl)}
+.p[aria-pressed="true"],.seg button[aria-pressed="true"],.add{background:linear-gradient(180deg,var(--a1),var(--a2));box-shadow:0 8px 0 var(--aedge),0 14px 18px var(--sh),inset 0 3px 0 var(--gl),inset 0 -3px 6px rgba(0,0,0,.08)}
+.p[aria-pressed="true"],.seg button[aria-pressed="true"]{transform:translateY(5px);box-shadow:0 3px 0 var(--aedge),0 5px 8px var(--sh),inset 0 4px 8px rgba(60,80,10,.3)}
+.add:active{box-shadow:0 2px 0 var(--aedge),0 3px 6px var(--sh)}
+.chips button{padding:8px 14px}.nav,.qty button{border-radius:16px}
+.p,.seg button{border-radius:16px}.add{border-radius:16px}
+.p:active[aria-pressed="true"],.seg button:active[aria-pressed="true"]{transform:translateY(7px)}
+main{padding-bottom:28px}
+:root{--g:linear-gradient(160deg,#F4FAFC,#D9EAF1 55%,#EEF6F9);--bl1:rgba(255,255,255,.95);--bl2:rgba(140,205,230,.45);--sheen:rgba(255,255,255,.65);--card:rgba(255,255,255,.38);--gl:rgba(255,255,255,.85)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--g:linear-gradient(160deg,#1B2832,#0E151B);--bl1:rgba(130,180,210,.28);--bl2:rgba(80,140,170,.25);--sheen:rgba(255,255,255,.07);--card:rgba(255,255,255,.08);--gl:rgba(255,255,255,.24)}}
+:root[data-theme="dark"]{--g:linear-gradient(160deg,#1B2832,#0E151B);--bl1:rgba(130,180,210,.28);--bl2:rgba(80,140,170,.25);--sheen:rgba(255,255,255,.07);--card:rgba(255,255,255,.08);--gl:rgba(255,255,255,.24)}
+body{background:linear-gradient(115deg,transparent 28%,var(--sheen) 44%,transparent 60%),radial-gradient(circle at 12% 8%,var(--bl1),transparent 45%),radial-gradient(circle at 92% 55%,var(--bl2),transparent 50%),var(--g);background-attachment:fixed}
+.form,.item,.total{-webkit-backdrop-filter:blur(26px) saturate(1.6);backdrop-filter:blur(26px) saturate(1.6)}
+:root{--ink:#0B3D2E;--mute:#4F8A75;--soft:#CDEFE2;--line:#BFE6D6;--accent:#2FBF8F;--accent-ink:#043326;--in:#0E8C63;--out:#C0503F;--b1:#FFFFFF;--b2:#D5F1E6;--edge:#8FCDB5;--a1:#5FDDB2;--a2:#16A97E;--aedge:#0B7A59;--g:linear-gradient(160deg,#F5FCF9,#D3EEE4 55%,#EEF9F5);--bl1:rgba(255,255,255,.95);--bl2:rgba(60,200,160,.4);--sh:rgba(10,90,65,.22)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#E3FAF1;--mute:#8CCBB4;--soft:#1F4A3D;--line:#2C5E4E;--accent:#3FD1A0;--accent-ink:#03281E;--in:#5FE0B5;--out:#F0A090;--b1:#2F6B58;--b2:#1D4A3C;--edge:#0A241C;--a1:#5FDDB2;--a2:#1FB589;--aedge:#0E6B4E;--g:linear-gradient(160deg,#10302A,#081915);--bl1:rgba(60,190,150,.3);--bl2:rgba(30,140,110,.28);--sh:rgba(0,0,0,.45)}}
+:root[data-theme="dark"]{--ink:#E3FAF1;--mute:#8CCBB4;--soft:#1F4A3D;--line:#2C5E4E;--accent:#3FD1A0;--accent-ink:#03281E;--in:#5FE0B5;--out:#F0A090;--b1:#2F6B58;--b2:#1D4A3C;--edge:#0A241C;--a1:#5FDDB2;--a2:#1FB589;--aedge:#0E6B4E;--g:linear-gradient(160deg,#10302A,#081915);--bl1:rgba(60,190,150,.3);--bl2:rgba(30,140,110,.28);--sh:rgba(0,0,0,.45)}
+</style>
+</head>
+<body>
+<main>
+  <div class="date">
+    <button class="nav" id="prev" aria-label="Ngày trước">‹</button>
+    <input type="date" id="d" aria-label="Chọn ngày">
+    <button class="nav" id="next" aria-label="Ngày sau">›</button>
+  </div>
+  <div class="periods" id="periods"></div>
+
+  <div class="form">
+    <div class="seg">
+      <button id="bin" aria-pressed="false">Thu</button>
+      <button id="bout" aria-pressed="true">Chi</button>
+    </div>
+    <input class="f" id="name" placeholder="Nội dung (vd: ăn sáng)" autocomplete="off">
+    <div class="chips" id="chips"></div>
+    <div class="row">
+      <div><label class="lbl" for="amt">Số tiền (nghìn đồng)</label><input class="f" id="amt" inputmode="decimal" placeholder="0"></div>
+      <div class="x">×</div>
+      <div><label class="lbl" for="qty">Số lần</label>
+        <div class="qty"><button id="qm" aria-label="Giảm">−</button><input class="f" id="qty" inputmode="numeric" value="1"><button id="qp" aria-label="Tăng">+</button></div>
+      </div>
+    </div>
+    <div class="calc" id="calc"></div>
+    <button class="add" id="add">Thêm khoản chi</button>
+  </div>
+
+  <div id="list"></div>
+</main>
+
+<div class="total">
+  <div id="ti"><small>Tổng thu</small><strong>0</strong><em>nghìn đồng</em></div>
+  <div id="to"><small>Tổng chi</small><strong>0</strong><em>nghìn đồng</em></div>
+</div>
+
+<script>
+(function(){
+var KEY="thuchi:v1",E=[],type="out",mode="day";
+try{E=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){E=[]}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(E))}catch(e){}}
+function $(id){return document.getElementById(id)}
+function pad(n){return n<10?"0"+n:""+n}
+function ymd(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function parse(s){var a=s.split("-");return new Date(+a[0],+a[1]-1,+a[2])}
+function fmt(n){return (Math.round(n*100)/100).toLocaleString("vi-VN")}
+function dm(d){return pad(d.getDate())+"/"+pad(d.getMonth()+1)}
+var cur=ymd(new Date());$("d").value=cur;
+
+function range(m){
+  var d=parse(cur),a,b,label;
+  if(m==="day"){a=b=d;label="Ngày "+dm(d)+"/"+d.getFullYear()}
+  else if(m==="week"){var w=(d.getDay()+6)%7;a=new Date(d.getFullYear(),d.getMonth(),d.getDate()-w);b=new Date(a.getFullYear(),a.getMonth(),a.getDate()+6);label=dm(a)+" – "+dm(b)}
+  else if(m==="month"){a=new Date(d.getFullYear(),d.getMonth(),1);b=new Date(d.getFullYear(),d.getMonth()+1,0);label="Tháng "+(d.getMonth()+1)+"/"+d.getFullYear()}
+  else{a=new Date(d.getFullYear(),0,1);b=new Date(d.getFullYear(),11,31);label="Năm "+d.getFullYear()}
+  return {a:ymd(a),b:ymd(b),label:label};
+}
+function sum(r){var i=0,o=0;E.forEach(function(e){if(e.date>=r.a&&e.date<=r.b){var v=e.amt*e.qty;if(e.type==="in")i+=v;else o+=v}});return {i:i,o:o}}
+var NAMES={day:"Ngày",week:"Tuần",month:"Tháng",year:"Năm"};
+
+function render(){
+  var h="";
+  ["day","week","month","year"].forEach(function(m){
+    var r=range(m),s=sum(r);
+    h+='<button class="p" data-m="'+m+'" aria-pressed="'+(m===mode)+'"><b>'+NAMES[m]+'</b><span class="i">+'+fmt(s.i)+'</span><span class="o">−'+fmt(s.o)+'</span><small>'+r.label+'</small></button>';
+  });
+  $("periods").innerHTML=h;
+  var r=range(mode),s=sum(r);
+  $("ti").querySelector("strong").textContent=fmt(s.i);
+  $("to").querySelector("strong").textContent=fmt(s.o);
+  var list=E.filter(function(e){return e.date>=r.a&&e.date<=r.b}).sort(function(x,y){return x.date<y.date?1:x.date>y.date?-1:y.id-x.id});
+  var l="";
+  list.forEach(function(e){
+    var d=parse(e.date);
+    l+='<div class="item"><div class="t"><b></b><small>'+dm(d)+' · '+fmt(e.amt)+' × '+e.qty+'</small></div><div class="v" style="color:var(--'+e.type+')">'+(e.type==="in"?"+":"−")+fmt(e.amt*e.qty)+'</div><button class="del" data-id="'+e.id+'" aria-label="Xóa">✕</button></div>';
+  });
+  $("list").innerHTML=l||'<div class="empty">Chưa có khoản nào trong '+r.label.toLowerCase()+'. Nhập khoản đầu tiên ở trên.</div>';
+  var names=$("list").querySelectorAll(".item .t b");
+  list.forEach(function(e,i){names[i].textContent=e.name||"(không tên)"});
+  chips();
+}
+function chips(){
+  var seen={},c=[];
+  for(var i=E.length-1;i>=0&&c.length<8;i--){var e=E[i];if(e.type===type&&e.name&&!seen[e.name]){seen[e.name]=1;c.push(e.name)}}
+  var box=$("chips");box.innerHTML="";
+  c.forEach(function(n){var b=document.createElement("button");b.textContent=n;b.onclick=function(){$("name").value=n;$("amt").focus()};box.appendChild(b)});
+}
+function num(s){var n=parseFloat(String(s).replace(",","."));return isNaN(n)?0:n}
+function calc(){
+  var a=num($("amt").value),q=num($("qty").value);
+  $("calc").textContent=a?fmt(a)+" × "+fmt(q)+" = "+fmt(a*q)+" nghìn ("+fmt(a*q*1000)+" đ)":"";
+}
+function setType(t){
+  type=t;
+  $("bin").setAttribute("aria-pressed",t==="in");$("bout").setAttribute("aria-pressed",t==="out");
+  $("add").textContent=t==="in"?"Thêm khoản thu":"Thêm khoản chi";
+  chips();
+}
+function setDate(s){if(!s)return;cur=s;$("d").value=s;render()}
+function shift(n){var d=parse(cur);d.setDate(d.getDate()+n);setDate(ymd(d))}
+
+$("bin").onclick=function(){setType("in")};
+$("bout").onclick=function(){setType("out")};
+$("d").onchange=function(){setDate($("d").value)};
+$("prev").onclick=function(){shift(-1)};
+$("next").onclick=function(){shift(1)};
+$("amt").oninput=calc;$("qty").oninput=calc;
+$("qm").onclick=function(){$("qty").value=Math.max(1,num($("qty").value)-1);calc()};
+$("qp").onclick=function(){$("qty").value=num($("qty").value)+1;calc()};
+$("periods").onclick=function(ev){var b=ev.target.closest(".p");if(b){mode=b.dataset.m;render()}};
+$("list").onclick=function(ev){var b=ev.target.closest(".del");if(b){var id=+b.dataset.id;E=E.filter(function(e){return e.id!==id});save();render()}};
+$("add").onclick=function(){
+  var a=num($("amt").value),q=num($("qty").value)||1;
+  if(!a){$("amt").focus();return}
+  E.push({id:Date.now(),date:cur,type:type,name:$("name").value.trim(),amt:a,qty:q});
+  save();$("name").value="";$("amt").value="";$("qty").value="1";calc();render();$("name").focus();
+};
+$("name").addEventListener("keydown",function(e){if(e.key==="Enter")$("amt").focus()});
+$("amt").addEventListener("keydown",function(e){if(e.key==="Enter")$("add").click()});
+setType("out");render();
+})();
+</script>
+</body>
+</html>
